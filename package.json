@@ -9,8 +9,12 @@
     "build": "tsc -b ./tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext=.ts",
-    "format": "prettier --write .",
-    "prepare": "husky install"
+    "format": "prettier --write ."
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.{js,ts,tsx,jsx}": "eslint --cache --fix",
