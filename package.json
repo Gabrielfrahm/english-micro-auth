@@ -8,13 +8,13 @@
     "tsc": "tsc",
     "build": "tsc -b ./tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext=.ts",
-    "format": "prettier --write .",
-    "prepare": "husky install"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "lint": "eslint . --ext .ts"
   },
-  "lint-staged": {
-    "*.{js,ts,tsx,jsx}": "eslint --cache --fix",
-    "*.{js,css,md,ts,tsx,jsx}": "prettier --write"
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prettier-format && npm run lint"
+    }
   },
   "author": "Gabriel Marques Frahm",
   "license": "ISC",
