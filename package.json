@@ -15,8 +15,8 @@
   "author": "Gabriel Marques Frahm",
   "license": "ISC",
   "lint-staged": {
-    "*.{js,ts,tsx,jsx}": "eslint --cache --fix",
-    "*.{js,css,md,ts,tsx,jsx}": "prettier --write"
+    "**/*.ts?(x)": "eslint --cache --fix",
+    "**/*.ts?(x)": "prettier --write"
   },
   "devDependencies": {
     "@types/node": "^20.4.5",
