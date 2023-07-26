@@ -16,9 +16,7 @@
     "noFallthroughCasesInSwitch": false,
     "allowJs": true,
     "baseUrl": "./src",
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
-  "include": [
-    "./src"
-  ]
+  "include": ["./src"]
 }

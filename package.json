@@ -12,19 +12,26 @@
     "format": "prettier --write .",
     "prepare": "husky install"
   },
+  "lint-staged": {
+    "**/*.{js,ts,tsx,jsx}": [
+      "eslint --cache --fix"
+    ],
+    "**/*.{js,css,md,ts,tsx,jsx}": [
+      "prettier --write"
+    ]
+  },
   "author": "Gabriel Marques Frahm",
   "license": "ISC",
-  "lint-staged": {
-    "**/*.ts?(x)": "eslint --cache --fix",
-    "**/*.ts?(x)": "prettier --write"
-  },
   "devDependencies": {
     "@types/node": "^20.4.5",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.2.0",
     "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "husky": "^8.0.0",
     "lint-staged": "^13.2.3",
+    "prettier": "^3.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   }
