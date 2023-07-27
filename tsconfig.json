@@ -15,8 +15,17 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "allowJs": true,
+    "rootDir": "./src",
     "baseUrl": "./src",
+    "sourceMap": true,
+    "paths": {
+      "@domain/*": [
+        "./domain/*"
+      ]
+    },
     "outDir": "./dist"
   },
-  "include": ["./src"]
+  "include": [
+    "./src"
+  ]
 }
