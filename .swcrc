@@ -6,9 +6,7 @@
     },
     "baseUrl": "./src",
     "paths": {
-      "@domain/*": [
-        "./domain/*"
-      ]
+      "@domain/*": ["./domain/*"]
     }
   }
 }

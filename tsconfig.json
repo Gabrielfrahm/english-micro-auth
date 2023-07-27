@@ -19,13 +19,9 @@
     "baseUrl": "./src",
     "sourceMap": true,
     "paths": {
-      "@domain/*": [
-        "./domain/*"
-      ]
+      "@domain/*": ["./domain/*"]
     },
     "outDir": "./dist"
   },
-  "include": [
-    "./src"
-  ]
+  "include": ["./src"]
 }
