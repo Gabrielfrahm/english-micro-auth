@@ -1,4 +1,4 @@
-import { AggregateRoot } from '@domain/aggregate-root';
+import { AggregateRoot } from '@shared/domain/entity';
 
 describe('Aggregate root unit test', () => {
   it('class extends aggregate root', () => {

@@ -6,7 +6,9 @@
     },
     "baseUrl": "./src",
     "paths": {
-      "@domain/*": ["./domain/*"]
+      "@shared/*": [
+        "./shared/*"
+      ]
     }
   }
 }

@@ -19,9 +19,13 @@
     "baseUrl": "./src",
     "sourceMap": true,
     "paths": {
-      "@domain/*": ["./domain/*"]
+      "@shared/*": [
+        "./shared/*"
+      ]
     },
     "outDir": "./dist"
   },
-  "include": ["./src"]
+  "include": [
+    "./src"
+  ]
 }

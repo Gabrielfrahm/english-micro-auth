@@ -12,7 +12,7 @@ const config: Config = {
   },
   clearMocks: true,
   collectCoverage: true,
-  coverageDirectory: '../coverage',
+  coverageDirectory: 'coverage',
   coverageProvider: 'v8',
   coverageThreshold: {
     global: {
@@ -22,13 +22,13 @@ const config: Config = {
       lines: 80,
     },
   },
-  rootDir: 'src',
+  rootDir: '.',
   testRegex: '.*\\..*spec\\.ts$',
   transform: {
     '^.+\\.ts?$': '@swc/jest',
   },
   moduleNameMapper: {
-    '^@domain/(.*)$': '<rootDir>/domain/$1',
+    '@/(.*)': '<rootDir>/src/$1',
   },
 };
 
