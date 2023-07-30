@@ -1,5 +1,7 @@
 import { AggregateRoot } from '@shared/domain/entity';
 import { UserID } from './user-id';
+import { UserValidatorFactory } from '../../validator/user-validator';
+import { EntityValidationError } from '@shared/domain/erros/validator-error';
 
 export type UserProps = {
   name: string;
@@ -16,6 +18,7 @@ export class User extends AggregateRoot<UserID, UserProps> {
     public readonly props: UserProps,
     id?: UserID
   ) {
+    User.validate(props);
     super(id, props);
     this.props.name = props.name;
     this.props.email = props.email;
@@ -24,6 +27,14 @@ export class User extends AggregateRoot<UserID, UserProps> {
     this.props.created_at = props.created_at || new Date();
     this.props.updated_at = props.updated_at || new Date();
     this.props.deleted_at = props.deleted_at || new Date();
+  }
+
+  static validate(props: UserProps): void {
+    const validator = UserValidatorFactory.create(props);
+    const isValid = validator.validate();
+    if (!isValid) {
+      throw new EntityValidationError(validator.errors);
+    }
   }
 
   public static newUser(

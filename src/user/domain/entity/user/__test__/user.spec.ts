@@ -1,6 +1,9 @@
 import { User } from '../user';
 
 describe('user entity unit test', () => {
+  beforeEach(() => {
+    User.validate = jest.fn();
+  });
   it('should by create new user', () => {
     const user = User.newUser(
       'Gabriel',
@@ -19,6 +22,7 @@ describe('user entity unit test', () => {
       deleted_at: user.getDeletedAt(),
     };
     expect(user).toBeDefined();
+    expect(User.validate).toHaveBeenCalled();
     expect(user.toJSON()).toStrictEqual(userProps);
   });
 
@@ -32,6 +36,7 @@ describe('user entity unit test', () => {
     const spy = jest.spyOn(user, 'setDeletedAt');
     user.setDeletedAt();
     expect(user.getDeletedAt()).toBeDefined();
+    expect(User.validate).toHaveBeenCalled();
     expect(spy).toBeCalledTimes(1);
   });
 });
