@@ -1,7 +1,8 @@
 import { AggregateRoot } from '@shared/domain/entity';
 import { UserID } from './user-id';
-import { UserValidatorFactory } from '../../validator/user-validator';
+import { UserValidatorFactory } from '../../validator/create/user-validator';
 import { EntityValidationError } from '@shared/domain/erros/validator-error';
+import { UserUpdateValidatorFactory } from '../../validator/update/user-update-validator';
 
 export type UserProps = {
   name: string;
@@ -13,8 +14,16 @@ export type UserProps = {
   deleted_at?: Date;
 };
 
+export type UserPropsUpdate = {
+  name?: string;
+  email?: string;
+  birth_date?: Date;
+  password?: string;
+  deleted_at?: Date;
+};
+
 export class User extends AggregateRoot<UserID, UserProps> {
-  public constructor(
+  private constructor(
     public readonly props: UserProps,
     id?: UserID
   ) {
@@ -57,6 +66,41 @@ export class User extends AggregateRoot<UserID, UserProps> {
       },
       id
     );
+  }
+
+  public async update({
+    name,
+    email,
+    birth_date,
+    password,
+    deleted_at,
+  }: UserPropsUpdate): Promise<void> {
+    const updateValidator = UserUpdateValidatorFactory.create({
+      name,
+      email,
+      birth_date,
+      password,
+      deleted_at,
+    });
+    const isValid = await updateValidator.validate();
+    if (!isValid) {
+      throw new EntityValidationError(updateValidator.errors);
+    }
+    if (name) {
+      this.props.name = name;
+    }
+    if (email) {
+      this.props.email = email;
+    }
+    if (birth_date) {
+      this.props.birth_date = birth_date;
+    }
+    if (password) {
+      this.props.password = password;
+    }
+    if (deleted_at) {
+      this.props.deleted_at = deleted_at;
+    }
   }
 
   getName(): string {
