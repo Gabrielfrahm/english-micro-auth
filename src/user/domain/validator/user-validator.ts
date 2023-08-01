@@ -1,5 +1,6 @@
 import { YupValidatorFields } from '@shared/domain/validator/yup-validator';
 import * as yup from 'yup';
+import { UserProps } from '../entity/user';
 export const userRules = {
   name: yup
     .string()
@@ -20,7 +21,7 @@ export const userRules = {
 export class UserValidator extends YupValidatorFields {}
 
 export class UserValidatorFactory {
-  static create(props: unknown): UserValidator {
+  static create(props: UserProps): UserValidator {
     return new UserValidator(props, userRules);
   }
 }

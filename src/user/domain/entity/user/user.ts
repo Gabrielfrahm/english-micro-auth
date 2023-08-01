@@ -14,7 +14,7 @@ export type UserProps = {
 };
 
 export class User extends AggregateRoot<UserID, UserProps> {
-  private constructor(
+  public constructor(
     public readonly props: UserProps,
     id?: UserID
   ) {
@@ -29,9 +29,9 @@ export class User extends AggregateRoot<UserID, UserProps> {
     this.props.deleted_at = props.deleted_at || new Date();
   }
 
-  static validate(props: UserProps): void {
+  static async validate(props: UserProps): Promise<void> {
     const validator = UserValidatorFactory.create(props);
-    const isValid = validator.validate();
+    const isValid = await validator.validate();
     if (!isValid) {
       throw new EntityValidationError(validator.errors);
     }
