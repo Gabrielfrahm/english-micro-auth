@@ -35,7 +35,7 @@ export class User extends AggregateRoot<UserID, UserProps> {
     this.props.password = props.password;
     this.props.created_at = props.created_at || new Date();
     this.props.updated_at = props.updated_at || new Date();
-    this.props.deleted_at = props.deleted_at || new Date();
+    this.props.deleted_at = props.deleted_at;
   }
 
   static async validate(props: UserProps): Promise<void> {
@@ -50,9 +50,13 @@ export class User extends AggregateRoot<UserID, UserProps> {
     name: string,
     email: string,
     birth_date: Date,
-    password: string
+    password: string,
+    id?: UserID,
+    created_at?: Date,
+    updated_at?: Date,
+    deleted_at?: Date
   ): User {
-    const id = UserID.unique();
+    const user_id = id ? id : UserID.unique();
     const now = new Date();
     return new User(
       {
@@ -60,11 +64,11 @@ export class User extends AggregateRoot<UserID, UserProps> {
         birth_date,
         email,
         password,
-        created_at: now,
-        updated_at: now,
-        deleted_at: null,
+        created_at: created_at ? created_at : now,
+        updated_at: updated_at ? updated_at : now,
+        deleted_at: deleted_at ? created_at : null,
       },
-      id
+      user_id
     );
   }
 

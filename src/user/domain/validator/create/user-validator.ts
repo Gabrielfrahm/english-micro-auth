@@ -15,7 +15,7 @@ export const userRules = {
   password: yup.string().required().min(6, 'must be 6 characters'),
   created_at: yup.date().optional(),
   updated_at: yup.date().optional(),
-  deleted_at: yup.date().optional(),
+  deleted_at: yup.date().optional().nullable(),
 };
 
 export class UserValidator extends YupValidatorFields {}
