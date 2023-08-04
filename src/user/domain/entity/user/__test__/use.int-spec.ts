@@ -1,4 +1,4 @@
-import { EntityValidationError } from '@shared/domain/erros/validator-error';
+import { EntityValidationError } from '@/shared/domain/erros/validator-error';
 import { User } from '../user';
 
 describe('user entity integration test', () => {

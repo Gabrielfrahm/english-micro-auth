@@ -33,17 +33,20 @@ describe('user entity unit test', () => {
       new Date('07/02/1999'),
       '123456'
     );
-
+    const deletedAt = new Date();
     expect(user.getName()).toBe('Gabriel');
     await user.update({
       name: 'Gabriel Updated',
       email: 'gabrielUpdate@mail.com',
       birth_date: new Date('08/02/1999'),
+      password: '1234567',
+      deleted_at: deletedAt,
     });
-
     expect(user.getName()).toBe('Gabriel Updated');
     expect(user.getEmail()).toBe('gabrielUpdate@mail.com');
     expect(user.getBirthDate()).toStrictEqual(new Date('08/02/1999'));
+    expect(user.props.password).toBe('1234567');
+    expect(user.getDeletedAt()).toBe(deletedAt);
   });
 
   it('should by possible set deleted at', () => {

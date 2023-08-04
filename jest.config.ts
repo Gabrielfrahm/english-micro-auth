@@ -30,6 +30,8 @@ const config: Config = {
   moduleNameMapper: {
     '@/(.*)': '<rootDir>/src/$1',
   },
+  globalSetup: './jest.global-setup.ts',
+  globalTeardown: './jest.global-teardown.ts',
 };
 
 export default config;

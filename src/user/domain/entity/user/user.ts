@@ -1,7 +1,7 @@
-import { AggregateRoot } from '@shared/domain/entity';
+import { AggregateRoot } from '@/shared/domain/entity';
 import { UserID } from './user-id';
 import { UserValidatorFactory } from '../../validator/create/user-validator';
-import { EntityValidationError } from '@shared/domain/erros/validator-error';
+import { EntityValidationError } from '@/shared/domain/erros/validator-error';
 import { UserUpdateValidatorFactory } from '../../validator/update/user-update-validator';
 
 export type UserProps = {

@@ -1,14 +1,14 @@
-import { AggregateRoot } from '@shared/domain/entity';
+import { AggregateRoot } from '@/shared/domain/entity';
 
 describe('Aggregate root unit test', () => {
   it('class extends aggregate root', () => {
-    class Shape extends AggregateRoot<string> {
+    class Shape extends AggregateRoot<string, unknown> {
       constructor(
         public id: string,
         private height: number,
         private width: number
       ) {
-        super(id);
+        super(id, {});
         this.height = height;
         this.width = width;
       }

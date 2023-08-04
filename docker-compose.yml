@@ -8,3 +8,29 @@ services:
       - 3333:3333
     volumes:
       - .:/app
+    networks:
+      - user-network
+
+  db:
+    build:
+      context: config/docker/postgres/
+      dockerfile: Dockerfile.dev
+    networks:
+      - user-network
+    container_name: db
+    environment:
+      POSTGRES_USER: db
+      POSTGRES_PASSWORD: db
+      POSTGRES_DB: db
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U db' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  user-network:
+    driver: bridge

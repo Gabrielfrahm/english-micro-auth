@@ -1,4 +1,4 @@
-import { Identifier } from '@shared/domain/entity';
+import { Identifier } from '@/shared/domain/entity';
 import { v4 as uuid } from 'uuid';
 
 export class UserID extends Identifier {
