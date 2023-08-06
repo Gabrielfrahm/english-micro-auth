@@ -15,24 +15,24 @@ export interface RepositoryInterface<
 
 export type SortDirection = 'asc' | 'desc';
 
-export type SearchProps<Filter = string | string[]> = {
+export type SearchProps<Filter = string[], Column = string[]> = {
   page?: number;
   per_page?: number;
   sort?: string | null;
   sort_dir?: SortDirection | null;
   filter?: Filter | null;
-  column?: string | null;
+  column?: Column | null;
 };
 
-export class SearchParams<Filter = string | string[]> {
+export class SearchParams<Filter = string[], Column = string[]> {
   protected _page: number;
   protected _per_page: number = 10;
   protected _sort: string | null;
   protected _sort_dir: SortDirection | null;
   protected _filter: Filter | null;
-  protected _column: string | null;
+  protected _column: Column | null;
 
-  constructor(props: SearchProps<Filter> = {}) {
+  constructor(props: SearchProps<Filter, Column> = {}) {
     this.page = props.page;
     this.per_page = props.per_page;
     this.sort = props.sort;
@@ -57,6 +57,7 @@ export class SearchParams<Filter = string | string[]> {
     }
     this._page = _page;
   }
+
   get per_page(): number {
     return this._per_page;
   }
@@ -101,24 +102,24 @@ export class SearchParams<Filter = string | string[]> {
 
   private set filter(value: Filter | null) {
     this._filter =
-      value === null || value === undefined || (value as string) === ''
-        ? null
-        : (`${value}` as Filter);
+      value === null || value === undefined ? null : ([`${value}`] as Filter);
   }
 
-  get column(): string | null {
+  get column(): Column | null {
     return this._column;
   }
 
-  private set column(value: string | null) {
+  private set column(value: Column | null) {
     this._column =
-      value === null || value === undefined || (value as string) === ''
-        ? null
-        : (`${value}` as string);
+      value === null || value === undefined ? null : ([`${value}`] as Column);
   }
 }
 
-type SearchResultProps<E extends AggregateRoot<Identifier, Props>, Filter> = {
+type SearchResultProps<
+  E extends AggregateRoot<Identifier, Props>,
+  Filter,
+  Column,
+> = {
   items: E[];
   total: number;
   current_page: number;
@@ -126,12 +127,13 @@ type SearchResultProps<E extends AggregateRoot<Identifier, Props>, Filter> = {
   sort: string | null;
   sort_dir: string | null;
   filter: Filter | null;
-  column: string | null;
+  column: Column | null;
 };
 
 export class SearchResult<
   E extends AggregateRoot<Identifier, Props>,
-  Filter = string,
+  Filter = string | string[],
+  Column = string[],
 > {
   readonly items: E[];
   readonly total: number;
@@ -141,9 +143,9 @@ export class SearchResult<
   readonly sort: string | null;
   readonly sort_dir: string | null;
   readonly filter: Filter;
-  readonly column: string | null;
+  readonly column: Column | null;
 
-  constructor(props: SearchResultProps<E, Filter>) {
+  constructor(props: SearchResultProps<E, Filter, Column>) {
     this.items = props.items;
     this.total = props.total;
     this.current_page = props.current_page;
@@ -163,7 +165,7 @@ export class SearchResult<
     sort: string;
     sort_dir: string;
     filter: Filter;
-    column: string;
+    column: Column;
   } {
     return {
       items: forceEntity ? this.items.map((item) => item.toJSON()) : this.items,
@@ -181,9 +183,10 @@ export class SearchResult<
 
 export interface SearchableRepositoryInterface<
   E extends AggregateRoot<Identifier, Props>,
-  Filter = string,
-  SearchInput = SearchParams<Filter>,
-  SearchOutput = SearchResult<E, Filter>,
+  Filter = string[],
+  Column = string[],
+  SearchInput = SearchParams<Filter, Column>,
+  SearchOutput = SearchResult<E, Filter, Column>,
 > extends RepositoryInterface<E> {
   sortableFields: string[];
   search(props: SearchInput, id?: string): Promise<SearchOutput>;

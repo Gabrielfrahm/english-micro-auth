@@ -105,6 +105,8 @@ export class User extends AggregateRoot<UserID, UserProps> {
     if (deleted_at) {
       this.props.deleted_at = deleted_at;
     }
+
+    this.props.updated_at = new Date();
   }
 
   getName(): string {

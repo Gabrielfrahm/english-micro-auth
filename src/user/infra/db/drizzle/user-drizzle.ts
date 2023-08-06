@@ -9,7 +9,7 @@ import {
   UserSearchParams,
   UserSearchResult,
 } from '@/user/domain/repository';
-import { eq } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, like, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UserMapper } from './user-mapper';
 import { User as UserDrizzle } from '@/shared/infra/db/drizzle/schemas/user/schema';
@@ -24,8 +24,55 @@ export class UserDrizzleRepository implements UserRepository {
   ];
   constructor(private userDrizzle: NodePgDatabase) {}
 
-  search(props: UserSearchParams, id?: string): Promise<UserSearchResult> {
-    throw new Error('Method not implemented.');
+  async search(
+    props: UserSearchParams,
+    id?: string
+  ): Promise<UserSearchResult> {
+    const offset = (props.page - 1) * props.per_page;
+    const limit = props.per_page;
+    const [filter_name, filter_email, filter_birth_date] =
+      props.filter[0].split(',');
+
+    const usersSearch = await this.userDrizzle
+      .select()
+      .from(users)
+      .where(
+        filter_name !== '' || filter_email !== '' || filter_birth_date !== ''
+          ? and(
+              filter_name !== ''
+                ? like(users.name, `%${filter_name}%`)
+                : undefined,
+              filter_email !== ''
+                ? like(users.email, `%${filter_email}%`)
+                : undefined,
+              filter_birth_date !== ''
+                ? sql.raw(
+                    `CAST(birth_date as text) LIKE '%${filter_birth_date}%'`
+                  )
+                : undefined
+            )
+          : null
+      )
+      .orderBy(
+        props.sort_dir === 'asc' && this.sortableFields.includes(props.sort)
+          ? asc(users[props.sort] ?? users.created_at)
+          : desc(users[props.sort] ?? users.created_at)
+      )
+      .limit(limit)
+      .offset(offset)
+      .prepare('search')
+      .execute();
+
+    return new UserSearchResult({
+      items: usersSearch.map((item) => UserMapper.toEntity(item)),
+      current_page: props.page,
+      per_page: props.per_page,
+      total: 10,
+      filter: props.filter,
+      sort: props.sort,
+      sort_dir: props.sort_dir,
+      column: props.column,
+    });
   }
   async insert(entity: User): Promise<void> {
     await this._checkEmail(entity.props.email);
@@ -63,12 +110,29 @@ export class UserDrizzleRepository implements UserRepository {
     return usersFind.map((item) => UserMapper.toEntity(item));
   }
 
-  update(entity: User): Promise<void> {
-    throw new Error('Method not implemented.');
+  async update(entity: User): Promise<void> {
+    await this._checkEmail(entity.props.email, entity.getID().getValue());
+    await this._get(entity.getID().getValue());
+    await this.userDrizzle
+      .update(users)
+      .set({
+        name: entity.props.name,
+        email: entity.props.email,
+        birth_date: entity.props.birth_date,
+        password: entity.props.password,
+        created_at: entity.props.created_at,
+        updated_at: entity.props.updated_at,
+        deleted_at: entity.props.deleted_at,
+      })
+      .where(eq(users.id, entity.getID().getValue()))
+      .prepare('update_user')
+      .execute();
   }
 
-  delete(id: string | Identifier): Promise<void> {
-    throw new Error('Method not implemented.');
+  async delete(id: string | Identifier): Promise<void> {
+    const _id = `${id}`;
+    await this._get(_id);
+    await this.userDrizzle.delete(users).where(eq(users.id, _id));
   }
 
   private async _checkEmail(email: string, id?: string): Promise<void> {
