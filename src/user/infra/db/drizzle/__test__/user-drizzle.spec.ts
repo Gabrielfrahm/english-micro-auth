@@ -5,7 +5,8 @@ import { users } from '@/shared/infra/db/drizzle/schemas/user/schema';
 import { User, UserID } from '@/user/domain/entity/user';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { UserSearchParams } from '@/user/domain/repository';
+import { UserSearchParams, UserSearchResult } from '@/user/domain/repository';
+import { UserMapper } from '../user-mapper';
 
 describe('user drizzle unit test', () => {
   let repository: UserDrizzleRepository;
@@ -147,9 +148,8 @@ describe('user drizzle unit test', () => {
     expect(usersFound).toHaveLength(0);
   });
 
-  it('should search user', async () => {
+  it('should only apply paginate when other params are null', async () => {
     const created_at = new Date();
-
     const userProps = [
       {
         id: '0d2d9aba-cc11-412e-aa2e-358bca445cb2',
@@ -192,16 +192,164 @@ describe('user drizzle unit test', () => {
 
       arrayUsers.push(user);
     }
+
+    const spyToEntity = jest.spyOn(UserMapper, 'toEntity');
+
+    const searchUser = await repository.search(
+      new UserSearchParams({ filter: ['', '', ''] })
+    );
+
+    expect(spyToEntity).toHaveBeenCalledTimes(2);
+    searchUser.items.forEach((item) => {
+      expect(item).toBeInstanceOf(User);
+      expect(item.getID().getValue()).toBeDefined();
+    });
+    expect(searchUser.toJSON()).toMatchObject({
+      total: 2,
+      current_page: 1,
+      last_page: 1,
+      per_page: 10,
+      sort: null,
+      sort_dir: null,
+      filter: [',,'],
+      column: null,
+    });
+  });
+
+  it('should order by created_at DESC when search params are null', async () => {
+    const created_at = new Date();
+
+    const userProps = [
+      {
+        id: '0d2d9aba-cc11-412e-aa2e-358bca445cb2',
+        name: 'some name 1',
+        email: 'email@email.com',
+        birth_date: new Date('07/02/1999'),
+        password: 'some image 1',
+        created_at: created_at,
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+      {
+        id: 'bcfc9d83-f5cf-4e64-8d4f-709f9bcdc520',
+        name: 'some name 2',
+        email: 'email2@email.com',
+        birth_date: new Date('07/02/1998'),
+        password: 'some image 2',
+        created_at: created_at,
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+    ];
+
+    const arrayUsers = [];
+    for (const us of userProps) {
+      const user = await db_connection
+        .insert(users)
+        .values({
+          id: us.id,
+          name: us.name,
+          email: us.email,
+          birth_date: us.birth_date,
+          password: us.password,
+          created_at: us.created_at,
+          updated_at: us.updated_at,
+          deleted_at: us.deleted_at,
+        })
+        .returning()
+        .prepare('create_user_1')
+        .execute();
+
+      arrayUsers.push(user);
+    }
+
+    const searchOutput = await repository.search(
+      new UserSearchParams({ filter: [] })
+    );
+    searchOutput.items.reverse().forEach((item) => {
+      expect(`${item.getName()}`);
+    });
+  });
+
+  it('should apply paginate and filter', async () => {
+    const created_at = new Date();
+
+    const userProps = [
+      {
+        id: '0d2d9aba-cc11-412e-aa2e-358bca445cb2',
+        name: 'test',
+        email: 'email@email.com',
+        birth_date: new Date('07/03/1999'),
+        password: 'some image 1',
+        created_at: created_at,
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+      {
+        id: 'bcfc9d83-f5cf-4e64-8d4f-709f9bcdc520',
+        name: 'Name',
+        email: 'email2@email.com',
+        birth_date: new Date('07/02/1998'),
+        password: 'some image 2',
+        created_at: created_at,
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+      {
+        id: 'c18a12ca-86d7-44c5-9228-457a55ee40cc',
+        name: 'name',
+        email: 'email3@email.com',
+        birth_date: new Date('07/02/1997'),
+        password: 'some image 3',
+        created_at: created_at,
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+    ];
+
+    const arrayUsers = [];
+    for (const us of userProps) {
+      const user = await db_connection
+        .insert(users)
+        .values({
+          id: us.id,
+          name: us.name,
+          email: us.email,
+          birth_date: us.birth_date,
+          password: us.password,
+          created_at: us.created_at,
+          updated_at: us.updated_at,
+          deleted_at: us.deleted_at,
+        })
+        .returning()
+        .prepare('create_user_2')
+        .execute();
+
+      arrayUsers.push(user[0]);
+    }
     const result = await repository.search(
       new UserSearchParams({
         page: 1,
         per_page: 2,
-        // sort: 'name',
         column: ['name', 'email', 'birth_date'],
-        filter: ['', '', ''],
+        filter: ['name', '', ''],
       })
     );
-
-    console.log(result.items);
+    console.log(result.toJSON().items);
+    expect(result.toJSON()).toStrictEqual(
+      new UserSearchResult({
+        items: [
+          UserMapper.toEntity(arrayUsers[1]),
+          UserMapper.toEntity(arrayUsers[2]),
+        ],
+        total: 2,
+        current_page: 1,
+        per_page: 2,
+        sort: null,
+        sort_dir: null,
+        filter: ['name,,'],
+        column: ['name,email,birth_date'],
+      }).toJSON()
+    );
   });
 });

@@ -8,6 +8,7 @@
     "tsc": "tsc",
     "build": "tsc -b ./tsconfig.json",
     "test": "jest --detectOpenHandles",
+    "test:unit": "jest -t",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
     "prepare": "husky install",

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Identifier } from '@/shared/domain/entity';
 import { AlreadyExisting, NotFoundError } from '@/shared/domain/erros';
-
+import { randomUUID } from 'crypto';
 import { users } from '@/shared/infra/db/drizzle/schemas/user/schema';
 import { User } from '@/user/domain/entity/user';
 import {
@@ -30,17 +30,19 @@ export class UserDrizzleRepository implements UserRepository {
   ): Promise<UserSearchResult> {
     const offset = (props.page - 1) * props.per_page;
     const limit = props.per_page;
+
     const [filter_name, filter_email, filter_birth_date] =
       props.filter[0].split(',');
 
     const usersSearch = await this.userDrizzle
       .select()
       .from(users)
+      .where(eq(users.deleted_at, null))
       .where(
         filter_name !== '' || filter_email !== '' || filter_birth_date !== ''
           ? and(
               filter_name !== ''
-                ? like(users.name, `%${filter_name}%`)
+                ? sql.raw(`lower(name) LIKE lower('%${filter_name}%')`)
                 : undefined,
               filter_email !== ''
                 ? like(users.email, `%${filter_email}%`)
@@ -54,20 +56,52 @@ export class UserDrizzleRepository implements UserRepository {
           : null
       )
       .orderBy(
-        props.sort_dir === 'asc' && this.sortableFields.includes(props.sort)
+        props.sort_dir === 'asc'
           ? asc(users[props.sort] ?? users.created_at)
           : desc(users[props.sort] ?? users.created_at)
       )
       .limit(limit)
       .offset(offset)
-      .prepare('search')
+      .prepare(randomUUID())
+      .execute();
+
+    const count = await this.userDrizzle
+      .select({
+        count: sql.raw(`count(*)`),
+      })
+      .from(users)
+      .where(eq(users.deleted_at, null))
+      .where(
+        filter_name !== '' || filter_email !== '' || filter_birth_date !== ''
+          ? and(
+              filter_name !== ''
+                ? sql.raw(`lower(name) LIKE lower('%${filter_name}%')`)
+                : undefined,
+              filter_email !== ''
+                ? like(users.email, `%${filter_email}%`)
+                : undefined,
+              filter_birth_date !== ''
+                ? sql.raw(
+                    `CAST(birth_date as text) LIKE '%${filter_birth_date}%'`
+                  )
+                : undefined
+            )
+          : null
+      )
+      .orderBy(
+        props.sort_dir === 'asc'
+          ? asc(users[props.sort] ?? users.created_at)
+          : desc(users[props.sort] ?? users.created_at)
+      )
+      .groupBy(users.id)
+      .prepare(randomUUID())
       .execute();
 
     return new UserSearchResult({
       items: usersSearch.map((item) => UserMapper.toEntity(item)),
       current_page: props.page,
       per_page: props.per_page,
-      total: 10,
+      total: count.length,
       filter: props.filter,
       sort: props.sort,
       sort_dir: props.sort_dir,
@@ -165,6 +199,7 @@ export class UserDrizzleRepository implements UserRepository {
     const user = await this.userDrizzle
       .select()
       .from(users)
+      .where(eq(users.deleted_at, null))
       .where(eq(users.id, id))
       .prepare('user_by_id')
       .execute();

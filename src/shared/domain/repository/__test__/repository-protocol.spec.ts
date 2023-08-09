@@ -120,22 +120,22 @@ describe('SearchParams Units Test', () => {
     const arrange = [
       { filter: null, expected: null },
       { filter: undefined, expected: null },
-      { filter: '', expected: null },
-      { filter: 0, expected: '0' },
-      { filter: -1, expected: '-1' },
-      { filter: 5.5, expected: '5.5' },
-      { filter: true, expected: 'true' },
-      { filter: false, expected: 'false' },
-      { filter: {}, expected: '[object Object]' },
-      { filter: 'field', expected: 'field' },
-      { filter: 1, expected: '1' },
-      { filter: 2, expected: '2' },
+      { filter: '', expected: [''] },
+      { filter: 0, expected: ['0'] },
+      { filter: -1, expected: ['-1'] },
+      { filter: 5.5, expected: ['5.5'] },
+      { filter: true, expected: ['true'] },
+      { filter: false, expected: ['false'] },
+      { filter: {}, expected: ['[object Object]'] },
+      { filter: 'field', expected: ['field'] },
+      { filter: 1, expected: ['1'] },
+      { filter: 2, expected: ['2'] },
     ];
 
     arrange.forEach((item) => {
-      expect(new SearchParams({ filter: item.filter as any }).filter).toBe(
-        item.expected
-      );
+      expect(
+        new SearchParams({ filter: item.filter as any }).filter
+      ).toStrictEqual(item.expected);
     });
   });
 });
