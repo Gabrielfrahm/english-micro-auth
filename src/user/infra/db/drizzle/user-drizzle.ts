@@ -11,7 +11,7 @@ import {
 } from '@/user/domain/repository';
 
 import { randomUUID } from 'crypto';
-import { and, asc, desc, eq, ilike, like, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, like, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import { UserMapper } from './user-mapper';

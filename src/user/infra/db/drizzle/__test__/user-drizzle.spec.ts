@@ -41,7 +41,7 @@ describe('user drizzle unit test', () => {
       new Date('02/07/1999'),
       'some password'
     );
-
+    await user.setPassword(user.password);
     await repository.insert(user);
 
     const model = await db_connection
@@ -72,7 +72,7 @@ describe('user drizzle unit test', () => {
       new Date('02/07/1999'),
       'some password'
     );
-
+    await user.setPassword(user.password);
     await repository.insert(user);
 
     await expect(repository.insert(user)).rejects.toThrow(
@@ -99,8 +99,10 @@ describe('user drizzle unit test', () => {
       new Date('02/07/1999'),
       'some password'
     );
+    await user.setPassword(user.password);
     await repository.insert(user);
     let entityFound = await repository.findById(user.getID().getValue());
+    console.log(entityFound);
     expect(user.toJSON()).toStrictEqual(entityFound.toJSON());
     entityFound = await repository.findById(user.getID().getValue());
     expect(user.toJSON()).toStrictEqual(entityFound.toJSON());

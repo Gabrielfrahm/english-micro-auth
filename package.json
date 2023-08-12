@@ -7,7 +7,7 @@
     "ts-node": "ts-node",
     "tsc": "tsc",
     "build": "tsc -b ./tsconfig.json",
-    "test": "jest --detectOpenHandles",
+    "test": "jest --detectOpenHandles --runInBand",
     "test:unit": "jest -t",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",

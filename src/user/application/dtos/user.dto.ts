@@ -1,5 +1,7 @@
+import { UserID } from '@/user/domain/entity/user';
+
 export type UserOutput = {
-  id: string;
+  id: UserID;
   name: string;
   email: string;
   birth_date: Date;

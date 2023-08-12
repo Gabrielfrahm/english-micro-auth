@@ -14,10 +14,10 @@ export abstract class Entity<T extends Identifier, Props> {
     return this.id;
   }
 
-  toJSON(): Required<{ id: string }> & Props {
+  toJSON(): Required<{ id: T }> & Props {
     return {
       id: this.id,
       ...this.props,
-    } as Required<{ id: string }> & Props;
+    } as Required<{ id: T }> & Props;
   }
 }
