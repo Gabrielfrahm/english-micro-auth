@@ -1,5 +1,6 @@
-import { UserID } from '../user-id';
 import { v4, validate } from 'uuid';
+
+import { UserID } from '../user-id';
 describe('user id unit test', () => {
   it('should by generate new uuid', () => {
     const userId = UserID.unique();

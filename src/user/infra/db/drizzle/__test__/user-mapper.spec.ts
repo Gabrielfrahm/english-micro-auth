@@ -1,8 +1,17 @@
+import { Hasher } from '@/shared/infra/adapters/cryptography/cryptography.interface';
 import { Connection } from '@/shared/infra/db/drizzle/connection';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { users } from '@/shared/infra/db/drizzle/schemas/user/schema';
 import { User, UserID } from '@/user/domain/entity/user';
+
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
 import { UserMapper } from '../user-mapper';
+
+class StubHasher implements Hasher {
+  async hash(): Promise<string> {
+    return await Promise.resolve('hashed_password');
+  }
+}
 describe('user mapper unit test', () => {
   let db_connection: NodePgDatabase;
   beforeEach(async () => {
@@ -19,7 +28,9 @@ describe('user mapper unit test', () => {
   });
 
   it('should convert a user to a user entity', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
@@ -59,6 +70,7 @@ describe('user mapper unit test', () => {
 
     expect(entity.toJSON()).toStrictEqual(
       User.newUser(
+        hasher,
         name,
         email,
         birth_date,

@@ -1,5 +1,7 @@
 import { YupValidatorFields } from '@/shared/domain/validator/yup-validator';
+
 import * as yup from 'yup';
+
 import { UserProps } from '../../entity/user';
 export const userRules = {
   name: yup

@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Identifier } from '@/shared/domain/entity';
-import { AlreadyExisting, NotFoundError } from '@/shared/domain/erros';
-import { randomUUID } from 'crypto';
+import { AlreadyExisting, NotFoundError } from '@/shared/domain/errors';
 import { users } from '@/shared/infra/db/drizzle/schemas/user/schema';
+import { User as UserDrizzle } from '@/shared/infra/db/drizzle/schemas/user/schema';
 import { User } from '@/user/domain/entity/user';
 import {
   UserRepository,
   UserSearchParams,
   UserSearchResult,
 } from '@/user/domain/repository';
+
+import { randomUUID } from 'crypto';
 import { and, asc, desc, eq, ilike, like, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
 import { UserMapper } from './user-mapper';
-import { User as UserDrizzle } from '@/shared/infra/db/drizzle/schemas/user/schema';
 
 export class UserDrizzleRepository implements UserRepository {
   sortableFields: string[] = [

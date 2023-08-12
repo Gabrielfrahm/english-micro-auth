@@ -1,11 +1,19 @@
-import { User } from '../user';
+import { Hasher } from '@/shared/infra/adapters/cryptography/cryptography.interface';
 
+import { User } from '../user';
+class StubHasher implements Hasher {
+  async hash(): Promise<string> {
+    return await Promise.resolve('hashed_password');
+  }
+}
 describe('user entity unit test', () => {
   beforeEach(() => {
     User.validate = jest.fn();
   });
   it('should by create new user', () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'Gabriel',
       'gabriel@mail.com',
       new Date('07/02/1999'),
@@ -27,7 +35,9 @@ describe('user entity unit test', () => {
   });
 
   it('should be update user', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'Gabriel',
       'gabriel@mail.com',
       new Date('07/02/1999'),
@@ -50,7 +60,9 @@ describe('user entity unit test', () => {
   });
 
   it('should by possible set deleted at', () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'Gabriel',
       'gabriel@mail.com',
       new Date('07/02/1999'),

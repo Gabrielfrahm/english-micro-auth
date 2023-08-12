@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+
 import { YupValidatorFields } from '../yup-validator';
 
 class StubValidation extends YupValidatorFields {}

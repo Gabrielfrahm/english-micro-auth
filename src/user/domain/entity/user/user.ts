@@ -1,8 +1,10 @@
 import { AggregateRoot } from '@/shared/domain/entity';
-import { UserID } from './user-id';
+import { EntityValidationError } from '@/shared/domain/errors/validator-error';
+import { Hasher } from '@/shared/infra/adapters/cryptography/cryptography.interface';
+
 import { UserValidatorFactory } from '../../validator/create/user-validator';
-import { EntityValidationError } from '@/shared/domain/erros/validator-error';
 import { UserUpdateValidatorFactory } from '../../validator/update/user-update-validator';
+import { UserID } from './user-id';
 
 export type UserProps = {
   name: string;
@@ -24,6 +26,7 @@ export type UserPropsUpdate = {
 
 export class User extends AggregateRoot<UserID, UserProps> {
   private constructor(
+    private readonly hasher: Hasher,
     public readonly props: UserProps,
     id?: UserID
   ) {
@@ -47,6 +50,7 @@ export class User extends AggregateRoot<UserID, UserProps> {
   }
 
   public static newUser(
+    hasher: Hasher,
     name: string,
     email: string,
     birth_date: Date,
@@ -59,6 +63,7 @@ export class User extends AggregateRoot<UserID, UserProps> {
     const user_id = id ? id : UserID.unique();
     const now = new Date();
     return new User(
+      hasher,
       {
         name,
         birth_date,
@@ -109,8 +114,17 @@ export class User extends AggregateRoot<UserID, UserProps> {
     this.props.updated_at = new Date();
   }
 
+  async setPassword(password: string): Promise<void> {
+    const hashedPassword = await this.hasher.hash(password);
+    this.props.password = hashedPassword;
+  }
+
   getName(): string {
     return this.props.name;
+  }
+
+  get password(): string {
+    return this.props.password;
   }
 
   getEmail(): string {

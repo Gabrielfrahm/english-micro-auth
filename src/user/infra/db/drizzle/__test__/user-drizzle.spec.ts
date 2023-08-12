@@ -1,13 +1,20 @@
-import { AlreadyExisting, NotFoundError } from '@/shared/domain/erros';
-import { UserDrizzleRepository } from '../user-drizzle';
+import { AlreadyExisting, NotFoundError } from '@/shared/domain/errors';
+import { Hasher } from '@/shared/infra/adapters/cryptography/cryptography.interface';
 import { Connection } from '@/shared/infra/db/drizzle/connection';
 import { users } from '@/shared/infra/db/drizzle/schemas/user/schema';
 import { User, UserID } from '@/user/domain/entity/user';
+import { UserSearchParams, UserSearchResult } from '@/user/domain/repository';
+
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { UserSearchParams, UserSearchResult } from '@/user/domain/repository';
-import { UserMapper } from '../user-mapper';
 
+import { UserDrizzleRepository } from '../user-drizzle';
+import { UserMapper } from '../user-mapper';
+class StubHasher implements Hasher {
+  async hash(): Promise<string> {
+    return await Promise.resolve('hashed_password');
+  }
+}
 describe('user drizzle unit test', () => {
   let repository: UserDrizzleRepository;
   let db_connection: NodePgDatabase;
@@ -26,7 +33,9 @@ describe('user drizzle unit test', () => {
   });
 
   it('Should be inserts a user', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
@@ -55,7 +64,9 @@ describe('user drizzle unit test', () => {
   });
 
   it('Should throw erro when add duplicated user email', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
@@ -80,7 +91,9 @@ describe('user drizzle unit test', () => {
   });
 
   it('should be find user by id', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
@@ -94,13 +107,16 @@ describe('user drizzle unit test', () => {
   });
 
   it('should list all users', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
       'some password'
     );
     const user2 = User.newUser(
+      hasher,
       'some name',
       'test2@mail.com',
       new Date('02/07/1999'),
@@ -116,7 +132,9 @@ describe('user drizzle unit test', () => {
   });
 
   it('should updated user', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
@@ -134,7 +152,9 @@ describe('user drizzle unit test', () => {
   });
 
   it('should delete user', async () => {
+    const hasher = new StubHasher();
     const user = User.newUser(
+      hasher,
       'some name',
       'test@mail.com',
       new Date('02/07/1999'),
@@ -335,7 +355,7 @@ describe('user drizzle unit test', () => {
         filter: ['name', '', ''],
       })
     );
-    console.log(result.toJSON().items);
+
     expect(result.toJSON()).toStrictEqual(
       new UserSearchResult({
         items: [
